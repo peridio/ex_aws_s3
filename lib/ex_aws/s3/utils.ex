@@ -15,10 +15,18 @@ defmodule ExAws.S3.Utils do
     :expires,
     :content_md5
   ]
-
-  @amz_headers [:website_redirect_location, :tagging, :tagging_directive]
-
   @etag_headers [:if_match, :if_none_match]
+
+  @amz_headers [
+    :website_redirect_location,
+    :tagging,
+    :tagging_directive,
+    :checksum_algorithm,
+    :checksum_crc32,
+    :checksum_crc32c,
+    :checksum_sha1,
+    :checksum_sha256
+  ]
 
   def put_object_headers(opts) do
     opts = opts |> Map.new()
