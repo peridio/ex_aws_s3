@@ -1189,17 +1189,43 @@ defmodule ExAws.S3 do
   def complete_multipart_upload(bucket, object, upload_id, parts) do
     parts_xml =
       parts
-      |> Enum.map(fn {part_number, etag} ->
-        [
-          "<Part>",
-          "<PartNumber>",
-          Integer.to_string(part_number),
-          "</PartNumber>",
-          "<ETag>",
-          etag,
-          "</ETag>",
-          "</Part>"
-        ]
+      |> Enum.map(fn
+        %{} = part ->
+          [
+            "<Part>",
+            Enum.map(part, fn
+              {:part_number, part_number} ->
+                "<PartNumber>#{Integer.to_string(part_number)}</PartNumber>"
+
+              {:etag, etag} ->
+                "<ETag>#{etag}</ETag>"
+
+              {:checksum_crc32, checksum_crc32} ->
+                "<ChecksumCRC32>#{checksum_crc32}</ChecksumCRC32>"
+
+              {:checksum_crc32c, checksum_crc32c} ->
+                "<ChecksumCRC32C>#{checksum_crc32c}</ChecksumCRC32C>"
+
+              {:checksum_sha1, checksum_sha1} ->
+                "<ChecksumSHA1>#{checksum_sha1}</ChecksumSHA256>"
+
+              {:checksum_sha256, checksum_sha256} ->
+                "<ChecksumSHA256>#{checksum_sha256}</ChecksumSHA256>"
+            end),
+            "</Part>"
+          ]
+
+        {part_number, etag} ->
+          [
+            "<Part>",
+            "<PartNumber>",
+            Integer.to_string(part_number),
+            "</PartNumber>",
+            "<ETag>",
+            etag,
+            "</ETag>",
+            "</Part>"
+          ]
       end)
 
     body =
