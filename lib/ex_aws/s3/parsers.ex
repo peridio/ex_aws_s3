@@ -110,8 +110,25 @@ if Code.ensure_loaded?(SweetXml) do
             ~x"./Part"l,
             part_number: ~x"./PartNumber/text()"s,
             etag: ~x"./ETag/text()"s,
-            size: ~x"./Size/text()"s
+            size: ~x"./Size/text()"s,
+            checksum_crc32: ~x"./ChecksumCRC32/text()"s,
+            checksum_crc32c: ~x"./ChecksumCRC32C/text()"s,
+            checksum_sha1: ~x"./ChecksumSHA1/text()"s,
+            checksum_sha256: ~x"./ChecksumSHA256/text()"s
           ]
+        )
+        |> Map.update!(
+          :parts,
+          &Enum.map(&1, fn part ->
+            Map.filter(part, fn
+              {key, ""}
+              when key in [:checksum_crc32, :checksum_crc32c, :checksum_sha1, :checksum_sha256] ->
+                false
+
+              _ ->
+                true
+            end)
+          end)
         )
 
       {:ok, %{resp | body: parsed_body}}
